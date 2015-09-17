@@ -34,7 +34,27 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   /**
    * 編集画面表示
    */
-  def edit(id: Option[Long]) = TODO
+  import UserController._ // コンパニオンオブジェクトに定義したFormを参照用
+  def edit(id: Option[Long]) = Action.async { implicit rs =>
+    // リクエストパラメータにIDが存在する場合
+    val form = if(id.isDefined) {
+      db.run(Users.filter(t => t.id === id.get.bind).result.head).map { user =>
+        // 値をフォームに詰める
+        userForm.fill(UserForm(Some(user.id), user.name, user.companyId))
+      }
+    } else {
+      // リクエストパラメータにIDが存在しない場合
+      Future { userForm }
+    }
+    
+    form.flatMap { form =>
+      // 会社一覧を取得
+      // SELECT * FROM COMPANIES ORDER BY ID
+      db.run(Companies.sortBy(_.id).result).map { companies =>
+        Ok(views.html.user.edit(form, companies))
+      }
+    }
+  }
   
   /**
    * 登録実行
@@ -50,4 +70,18 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
    * 削除実行
    */
   def remove(id: Long) = TODO
+}
+
+object UserController {
+  // フォームの値を格納するケースクラス 
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int])
+  
+  // formから送信されたデータ ⇔ ケースクラスの変換を行う
+  var userForm = Form(
+      mapping(
+        "id"        -> optional(longNumber),
+        "name"      -> nonEmptyText(maxLength = 20),
+        "companyId" -> optional(number)
+      )(UserForm.apply)(UserForm.unapply)
+  )
 }
