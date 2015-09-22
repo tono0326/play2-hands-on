@@ -59,12 +59,51 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   /**
    * 登録実行
    */
-  def create = TODO
+  def create = Action.async { implicit rs =>
+    // リクエストの内容をバインド
+    userForm.bindFromRequest.fold(
+      // エラーの場合
+      error => {
+        db.run(Companies.sortBy(t => t.id).result).map { companies => 
+          BadRequest(views.html.user.edit(error, companies))}
+      },
+      // OKの場合
+      form => {
+        // ユーザーを登録
+        // INSERT INTO USERS (ID, NAME, COMPANY_ID) VALUES (?, ?, ?)
+        val user = UsersRow(0, form.name, form.companyId)
+        db.run(Users += user).map { _ =>
+          // 一覧画面へリダイレクト（タイプセーフに指定）
+          Redirect(routes.UserController.list)
+        }
+      }
+    )
+  }
   
   /**
    * 更新実行
    */
-  def update = TODO
+  def update = Action.async { implicit rs =>
+    // リクエストの内容をバインド
+    userForm.bindFromRequest.fold(
+      // エラーの場合は登録画面に戻す
+      error => {
+        db.run(Companies.sortBy(t => t.id).result).map { companies =>
+          BadRequest(views.html.user.edit(error, companies))
+        }
+      },
+      // OKの場合は登録を行い一覧画面にリダイレクトする
+      form => {
+        // ユーザー情報を更新
+        // UPDATE USERS SET NAME = ?, COMPANY_ID = ?, WHERE ID = ?
+        val user = UsersRow(form.id.get, form.name, form.companyId)
+        db.run(Users.filter(t => t.id === user.id.bind).update(user)).map { _ =>
+          // 一覧画面にリダイレクト（タイプセーフに指定）
+          Redirect(routes.UserController.list)
+        }
+      }
+    )
+  }
   
   /**
    * 削除実行
