@@ -15,6 +15,12 @@
       <div class="form-group">
         @select(userForm("companyId"), companies.map(x => x.id.toString -> x.name).toSeq, '_label -> "会社", '_default -> "-- 会社名を選択してください --")
       </div>
+      <div class="form-groupt">
+        @inputText(userForm("email"), '_label -> "メールアドレス")
+      </div>
+      <div class="form-groupt">
+        @inputText(userForm("password"), '_label -> "パスワード")
+      </div>
       @* IDがある場合（更新の場合）のみhiddenを出力する *@
       @userForm("id").value.map { value =>
         <input type="hidden" name="id" value="@value" />

@@ -18,20 +18,26 @@ import play.api.libs.functional.syntax._
 object JsonController {
 
   // ユーザー情報を受け取るためのケースクラス
-  case class UserForm(id: Option[Long], name: String, companyId: Option[Int])
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: Option[String], password: Option[String])
 
   // UsersRowをJSONに変換するためのWritesを定義
   implicit val usersRowWritesWrites = (
     (__ \ "id").write[Long] and
     (__ \ "name").write[String] and
-    (__ \ "companyId").writeNullable[Int])(unlift(UsersRow.unapply))
+    (__ \ "companyId").writeNullable[Int] and
+    (__ \ "email").writeNullable[String] and
+    (__ \ "password").writeNullable[String]
+    )(unlift(UsersRow.unapply))
 
   // JsonをUserFormに変換するためのReadsを定義
   // implicit val userFormFormat = (
   implicit val userFormReads = (
     (__ \ "id").readNullable[Long] and
     (__ \ "name").read[String] and
-    (__ \ "companyId").readNullable[Int])(UserForm)
+    (__ \ "companyId").readNullable[Int] and
+    (__ \ "email").readNullable[String] and
+    (__ \ "password").readNullable[String]
+    )(UserForm)
 }
 
 // テンプレートを使用していないので国際化機能のために必要だったMessagesApiのDIやI18nSupportトレイトのミックスインは行っていません。
@@ -58,7 +64,7 @@ class JsonController @Inject() (val dbConfigProvider: DatabaseConfigProvider) ex
   def create = Action.async(parse.json) { implicit rs =>
     rs.body.validate[UserForm].map { form =>
       // OKの場合はユーザーを登録
-      val user = UsersRow(0, form.name, form.companyId)
+      val user = UsersRow(0, form.name, form.companyId, form.email, form.password)
       db.run(Users += user).map { _ =>
         Ok(Json.obj("result" -> "success"))
       }
@@ -76,7 +82,7 @@ class JsonController @Inject() (val dbConfigProvider: DatabaseConfigProvider) ex
   def update = Action.async(parse.json) { implicit rs => 
     rs.body.validate[UserForm].map { form => 
       // OKの場合はユーザー情報を更新
-      val user = UsersRow(form.id.get, form.name, form.companyId)
+      val user = UsersRow(form.id.get, form.name, form.companyId, form.email, form.password)
       db.run(Users.filter(t => t.id === user.id.bind).update(user)).map { _ =>
         Ok(Json.obj("result" -> "success"))
       }

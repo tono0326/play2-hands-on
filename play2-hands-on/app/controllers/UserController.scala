@@ -40,7 +40,7 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     val form = if(id.isDefined) {
       db.run(Users.filter(t => t.id === id.get.bind).result.head).map { user =>
         // 値をフォームに詰める
-        userForm.fill(UserForm(Some(user.id), user.name, user.companyId))
+        userForm.fill(UserForm(Some(user.id), user.name, user.companyId, user.email, user.password))
       }
     } else {
       // リクエストパラメータにIDが存在しない場合
@@ -70,8 +70,8 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
       // OKの場合
       form => {
         // ユーザーを登録
-        // INSERT INTO USERS (ID, NAME, COMPANY_ID) VALUES (?, ?, ?)
-        val user = UsersRow(0, form.name, form.companyId)
+        // INSERT INTO USERS (ID, NAME, COMPANY_ID, EMAIL, PASSWORD) VALUES (?, ?, ?, ?, ?)
+        val user = UsersRow(0, form.name, form.companyId, form.email, form.password)
         db.run(Users += user).map { _ =>
           // 一覧画面へリダイレクト（タイプセーフに指定）
           Redirect(routes.UserController.list)
@@ -95,8 +95,8 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
       // OKの場合は登録を行い一覧画面にリダイレクトする
       form => {
         // ユーザー情報を更新
-        // UPDATE USERS SET NAME = ?, COMPANY_ID = ?, WHERE ID = ?
-        val user = UsersRow(form.id.get, form.name, form.companyId)
+        // UPDATE USERS SET NAME = ?, COMPANY_ID = ?, EMAIL = ?, PASSWORD = ? WHERE ID = ?
+        val user = UsersRow(form.id.get, form.name, form.companyId, form.email, form.password)
         db.run(Users.filter(t => t.id === user.id.bind).update(user)).map { _ =>
           // 一覧画面にリダイレクト（タイプセーフに指定）
           Redirect(routes.UserController.list)
@@ -120,14 +120,16 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
 
 object UserController {
   // フォームの値を格納するケースクラス 
-  case class UserForm(id: Option[Long], name: String, companyId: Option[Int])
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: Option[String], password: Option[String])
   
   // formから送信されたデータ ⇔ ケースクラスの変換を行う
   var userForm = Form(
       mapping(
         "id"        -> optional(longNumber),
         "name"      -> nonEmptyText(maxLength = 20),
-        "companyId" -> optional(number)
+        "companyId" -> optional(number),
+        "email"     -> optional(email),
+        "password"  -> optional(text)
       )(UserForm.apply)(UserForm.unapply)
   )
 }
