@@ -18,15 +18,15 @@ import play.api.libs.functional.syntax._
 object JsonController {
 
   // ユーザー情報を受け取るためのケースクラス
-  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: Option[String], password: Option[String])
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: String, password: String)
 
   // UsersRowをJSONに変換するためのWritesを定義
   implicit val usersRowWritesWrites = (
     (__ \ "id").write[Long] and
     (__ \ "name").write[String] and
     (__ \ "companyId").writeNullable[Int] and
-    (__ \ "email").writeNullable[String] and
-    (__ \ "password").writeNullable[String]
+    (__ \ "email").write[String] and
+    (__ \ "password").write[String]
     )(unlift(UsersRow.unapply))
 
   // JsonをUserFormに変換するためのReadsを定義
@@ -35,8 +35,8 @@ object JsonController {
     (__ \ "id").readNullable[Long] and
     (__ \ "name").read[String] and
     (__ \ "companyId").readNullable[Int] and
-    (__ \ "email").readNullable[String] and
-    (__ \ "password").readNullable[String]
+    (__ \ "email").read[String] and
+    (__ \ "password").read[String]
     )(UserForm)
 }
 

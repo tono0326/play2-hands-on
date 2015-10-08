@@ -120,7 +120,7 @@ class UserController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
 
 object UserController {
   // フォームの値を格納するケースクラス 
-  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: Option[String], password: Option[String])
+  case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: String, password: String)
   
   // formから送信されたデータ ⇔ ケースクラスの変換を行う
   var userForm = Form(
@@ -128,8 +128,8 @@ object UserController {
         "id"        -> optional(longNumber),
         "name"      -> nonEmptyText(maxLength = 20),
         "companyId" -> optional(number),
-        "email"     -> optional(email),
-        "password"  -> optional(text)
+        "email"     -> nonEmptyText,
+        "password"  -> nonEmptyText
       )(UserForm.apply)(UserForm.unapply)
   )
 }
