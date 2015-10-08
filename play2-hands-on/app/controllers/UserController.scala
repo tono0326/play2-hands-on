@@ -3,6 +3,7 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.data.validation._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.i18n.{MessagesApi, I18nSupport}
 import play.api.db.slick._
@@ -122,14 +123,16 @@ object UserController {
   // フォームの値を格納するケースクラス 
   case class UserForm(id: Option[Long], name: String, companyId: Option[Int], email: String, password: String)
   
+  val halfWidthAlphaNum = Constraints.pattern("[a-zA-Z0-9]+".r)
+  
   // formから送信されたデータ ⇔ ケースクラスの変換を行う
   var userForm = Form(
       mapping(
         "id"        -> optional(longNumber),
         "name"      -> nonEmptyText(maxLength = 20),
         "companyId" -> optional(number),
-        "email"     -> nonEmptyText,
-        "password"  -> nonEmptyText
+        "email"     -> email,
+        "password"  -> nonEmptyText.verifying(halfWidthAlphaNum)
       )(UserForm.apply)(UserForm.unapply)
   )
 }
