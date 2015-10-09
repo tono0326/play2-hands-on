@@ -44,18 +44,20 @@ trait Tables {
   /** Entity class storing rows of table Users
    *  @param id Database column ID SqlType(BIGINT), AutoInc, PrimaryKey
    *  @param name Database column NAME SqlType(VARCHAR)
-   *  @param companyId Database column COMPANY_ID SqlType(INTEGER) */
-  case class UsersRow(id: Long, name: String, companyId: Option[Int])
+   *  @param companyId Database column COMPANY_ID SqlType(INTEGER)
+   *  @param email Database column EMAIL SqlType(VARCHAR)
+   *  @param password Database column PASSWORD SqlType(VARCHAR) */
+  case class UsersRow(id: Long, name: String, companyId: Option[Int], email: String, password: String)
   /** GetResult implicit for fetching UsersRow objects using plain SQL queries */
   implicit def GetResultUsersRow(implicit e0: GR[Long], e1: GR[String], e2: GR[Option[Int]]): GR[UsersRow] = GR{
     prs => import prs._
-    UsersRow.tupled((<<[Long], <<[String], <<?[Int]))
+    UsersRow.tupled((<<[Long], <<[String], <<?[Int], <<[String], <<[String]))
   }
   /** Table description of table USERS. Objects of this class serve as prototypes for rows in queries. */
   class Users(_tableTag: Tag) extends Table[UsersRow](_tableTag, "USERS") {
-    def * = (id, name, companyId) <> (UsersRow.tupled, UsersRow.unapply)
+    def * = (id, name, companyId, email, password) <> (UsersRow.tupled, UsersRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(name), companyId).shaped.<>({r=>import r._; _1.map(_=> UsersRow.tupled((_1.get, _2.get, _3)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(name), companyId, Rep.Some(email), Rep.Some(password)).shaped.<>({r=>import r._; _1.map(_=> UsersRow.tupled((_1.get, _2.get, _3, _4.get, _5.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column ID SqlType(BIGINT), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("ID", O.AutoInc, O.PrimaryKey)
@@ -63,6 +65,10 @@ trait Tables {
     val name: Rep[String] = column[String]("NAME")
     /** Database column COMPANY_ID SqlType(INTEGER) */
     val companyId: Rep[Option[Int]] = column[Option[Int]]("COMPANY_ID")
+    /** Database column EMAIL SqlType(VARCHAR) */
+    val email: Rep[String] = column[String]("EMAIL")
+    /** Database column PASSWORD SqlType(VARCHAR) */
+    val password: Rep[String] = column[String]("PASSWORD")
 
     /** Foreign key referencing Companies (database name IDX_USERS_FK0) */
     lazy val companiesFk = foreignKey("IDX_USERS_FK0", companyId, Companies)(r => Rep.Some(r.id), onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Restrict)
