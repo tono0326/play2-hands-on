@@ -1,0 +1,43 @@
+@* edit Template File *@
+@(loginForm: Form[controllers.LoginController.LoginForm])(implicit messages: Messages)
+
+@* テンプレートで利用可能なヘルパーをインポート *@
+@* Playが提供する標準ヘルパー（フォームなどを出力する関数）が利用可能 *@
+@import helper._
+
+@* main.scala.htmlを呼び出す *@
+@main("ログイン") {
+    
+<div>ログイン</div>
+
+<div class="col-xs-6">
+  @form(routes.LoginController.login, 'class -> "container", 'role -> "form") {
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>メールアドレス</th>
+        <th>パスワード</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="form-groupt">
+            @inputText(loginForm("email"), '_label -> "メールアドレス")
+          </div>
+        </td>
+        <td>
+          <div class="form-groupt">
+            @inputText(loginForm("password"), '_label -> "パスワード")
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <input type="submit" value="ログイン" class="btn btn-success">
+  </div>
+  }
+</div>
+
+}
