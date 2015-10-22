@@ -26,8 +26,9 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     // form.flatMap { form => Ok(views.html.board.login(form))}
     // val form = loginForm.fill(LoginForm("test@test.com", "hogehoge"))
     // val form = Future { loginForm }
-    val form = loginForm
-    Ok(views.html.board.login(form))
+    // val result = Ok(views.html.board.login(loginForm))
+    // Future(result)
+    Future(loginForm).map(form => Ok(views.html.board.login(form)))
   }
   
   // ログイン処理
