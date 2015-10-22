@@ -8,18 +8,16 @@ import play.api.data.validation._
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.i18n.{MessagesApi, I18nSupport}
-import play.api.db.slick._
-import slick.driver.JdbcProfile
-import models.Tables._
 import javax.inject.Inject
-import scala.concurrent.Future
-import slick.driver.H2Driver.api._
 
-class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
-                               val messagesApi: MessagesApi) extends Controller 
-    with HasDatabaseConfigProvider[JdbcProfile] with I18nSupport {
+import scala.concurrent.Future
+
+class LoginController @Inject()(val messagesApi: MessagesApi) extends Controller 
+    with I18nSupport {
 
   import LoginController._ // コンパニオンオブジェクトに定義したFormを参照
+  
+  // implicit rsはアクションの処理の中でHTTPリクエストやDBのセッションを暗黙的に使用するために必要になる記述
   def index = Action.async { implicit rs =>
     // val form = loginForm
     // Ok(views.html.board.login(loginForm))
