@@ -58,3 +58,19 @@ $ find . -type f -d 1 ! -path "./.*" | sed 's!^.*/!!' | xargs -I % git mv ./% ./
 - [Scala - Playframeworkのフォームで良く使うバリデーション - Qiita](http://qiita.com/modal_soul/items/00da5105b29880fee590)
 - [Scala ExecutionContextって何 / Futureはスレッド立ち上げじゃないよ - ましめも](http://mashi.hatenablog.com/entry/2014/11/24/010417)
 
+# ログインフォームを作る
+## 手順
+- [x] DBにメールアドレスとパスワードを追加
+- ログイン画面を作る
+    - [ ] 初期画面
+        - [ ] HTMLのパスワードのhelperをなんとかする `constraint.pattern`
+    - [ ] エラー画面
+    - [ ] 完了画面
+## がんばったこと
+- 余計なimport文を削除する
+- パスワード入力
+
+
+
+
+

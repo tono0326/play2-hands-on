@@ -37,12 +37,14 @@ class LoginController @Inject()(val messagesApi: MessagesApi) extends Controller
 object LoginController {
   case class LoginForm(email: String, password: String)
   
-  val halfWidthAlphaNum = Constraints.pattern("[a-zA-Z0-9]+".r)
-  
   var loginForm = Form(
       mapping(
           "email" -> email,
-          "password" -> nonEmptyText.verifying(halfWidthAlphaNum)
+          // パスワードは半角英数字10文字以内
+          "password" -> nonEmptyText.verifying(
+              Constraints.pattern("[a-zA-Z0-9]+".r),
+              Constraints.maxLength(10)
+          )
       )(LoginForm.apply)(LoginForm.unapply)
   )
 }
