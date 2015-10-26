@@ -1,5 +1,5 @@
 @* edit Template File *@
-@(loginForm: Form[controllers.LoginController.LoginForm])(implicit messages: Messages)
+@(loginForm: Form[controllers.LoginController.LoginForm], message: Option[String])(implicit messages: Messages)
 
 @* テンプレートで利用可能なヘルパーをインポート *@
 @* Playが提供する標準ヘルパー（フォームなどを出力する関数）が利用可能 *@
@@ -8,7 +8,7 @@
 @* main.scala.htmlを呼び出す *@
 @main("ログイン") {
     
-<h1>ログイン</h1>
+<h1>@message.getOrElse("ログイン画面")</h1>
 
 <div class="col-xs-6">
   @form(routes.LoginController.login, 'class -> "container", 'role -> "form") {

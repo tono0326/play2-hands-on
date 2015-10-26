@@ -23,14 +23,32 @@ class LoginController @Inject()(val messagesApi: MessagesApi) extends Controller
     // Ok(views.html.board.login(loginForm))
     // form.flatMap { form => Ok(views.html.board.login(form))}
     // val form = loginForm.fill(LoginForm("test@test.com", "hogehoge"))
+    
+    // Futureのタイミングが違うパターン
     // val form = Future { loginForm }
     // val result = Ok(views.html.board.login(loginForm))
     // Future(result)
-    Future(loginForm).map(form => Ok(views.html.board.login(form)))
+    
+    val message = None
+    Future(loginForm).map(form => Ok(views.html.board.login(form, message)))
   }
   
   // ログイン処理
-  def login = TODO
+  def login = Action { implicit rs =>
+    // リクエストの内容をバインド
+    loginForm.bindFromRequest.fold(
+        // エラーの場合は入力画面に戻す
+        error => {
+          val message = Some("ログイン失敗")
+          BadRequest(views.html.board.login(error, message))
+        },
+        // 成功時
+        form => {
+          val message = Some("ログイン成功")
+          Ok(views.html.board.login(loginForm, message))
+        }
+    )
+  }
 
 }
 
