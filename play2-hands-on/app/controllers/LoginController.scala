@@ -12,8 +12,15 @@ import javax.inject.Inject
 
 import scala.concurrent.Future
 
-class LoginController @Inject()(val messagesApi: MessagesApi) extends Controller 
-    with I18nSupport {
+// DBを使う
+import play.api.db.slick._
+import slick.driver.JdbcProfile
+import models.Tables._
+import slick.driver.H2Driver.api._
+
+class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
+                                val messagesApi: MessagesApi) extends Controller 
+    with HasDatabaseConfigProvider[JdbcProfile] with I18nSupport {
 
   import LoginController._ // コンパニオンオブジェクトに定義したFormを参照
   
@@ -34,22 +41,28 @@ class LoginController @Inject()(val messagesApi: MessagesApi) extends Controller
   }
   
   // ログイン処理
-  def login = Action { implicit rs =>
+  def login = Action.async { implicit rs =>
     // リクエストの内容をバインド
     loginForm.bindFromRequest.fold(
         // エラーの場合は入力画面に戻す
         error => {
-          val message = Some("ログイン失敗")
-          BadRequest(views.html.board.login(error, message))
+          val message = Some("ログイン失敗（バリデーションエラー）")
+          Future(BadRequest(views.html.board.login(error, message)))
         },
         // 成功時
         form => {
-          val message = Some("ログイン成功")
-          Ok(views.html.board.login(loginForm, message))
+          db.run(Users.filter(t => t.email === form.email && t.password === form.password).result).map { users =>
+            if(users.isEmpty) {
+              val message = Some("ログイン失敗：存在しないユーザーです " + form.email)
+              BadRequest(views.html.board.login(loginForm, message))
+            } else {
+              val message = Some("ログイン成功：" + form.email)
+              Ok(views.html.board.login(loginForm, message))
+            }
+          }
         }
     )
   }
-
 }
 
 object LoginController {
