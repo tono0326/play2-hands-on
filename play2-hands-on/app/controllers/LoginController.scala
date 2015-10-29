@@ -36,8 +36,18 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     // val result = Ok(views.html.board.login(loginForm))
     // Future(result)
     
-    val message = None
-    Future(loginForm).map(form => Ok(views.html.board.login(form, message)))
+    // ログイン済みかチェック
+    rs.session.get("user_id") match {
+      case Some(x) => {
+        // ログイン済みの場合は掲示板に転送
+        Future(Redirect(routes.LoginController.thread))
+      }
+      case None => {
+        // ログイン画面に転送
+        val message = None
+        Future(loginForm).map(form => Ok(views.html.board.login(form, message)))
+      }
+    }
   }
   
   // ログイン処理
@@ -56,13 +66,35 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
               val message = Some("ログイン失敗：存在しないユーザーです " + form.email)
               BadRequest(views.html.board.login(loginForm, message))
             } else {
-              val message = Some("ログイン成功：" + form.email)
+              // セッショにログイン情報を記録
+              
+              
+              val message = Some("ログイン成功：" + users.head.email)
               Ok(views.html.board.login(loginForm, message))
             }
           }
         }
     )
   }
+  
+  // ログアウト処理
+  def logout = Action.async { implicit rs =>
+    // session().clear(); //  not found: value session
+    // session().remove("user_id") // not found: value session
+    // rs.session().remove("user_id") // not enough arguments for method apply: (key: String)String in class Session.Unspecified value parameter key.
+    // rs.session.remove("user_id") //  value remove is not a member of play.api.mvc.Session
+    // rs.session.withSession( // value withSession is not a member of play.api.mvc.Session
+    //     session - "user_id"
+    // );
+    Ok().as(HTML).withSession(
+        session - "user_id"
+    );
+    Future(Redirect(routes.LoginController.login))
+  }
+  
+  // スレッド処理
+  def thread = TODO
+  
 }
 
 object LoginController {

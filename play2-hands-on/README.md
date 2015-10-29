@@ -62,15 +62,18 @@ $ find . -type f -d 1 ! -path "./.*" | sed 's!^.*/!!' | xargs -I % git mv ./% ./
 ## 手順
 - [x] DBにメールアドレスとパスワードを追加
 - ログイン画面を作る
-    - [ ] 初期画面
+    - [x] 初期画面
         - [ ] HTMLのパスワードのhelperをなんとかする `constraint.pattern`
-    - [ ] エラー画面
+    - [x] エラー画面
     - [ ] 完了画面
 ## がんばったこと
 - 余計なimport文を削除する
 - パスワード入力
 
+## 後で読む
 
+JavaGuide4
+https://www.playframework.com/documentation/ja/2.2.x/JavaGuide4
 
 
 
