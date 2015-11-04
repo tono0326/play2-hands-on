@@ -26,27 +26,15 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   
   // implicit rsはアクションの処理の中でHTTPリクエストやDBのセッションを暗黙的に使用するために必要になる記述
   def index = Action.async { implicit rs =>
-    // val form = loginForm
-    // Ok(views.html.board.login(loginForm))
-    // form.flatMap { form => Ok(views.html.board.login(form))}
-    // val form = loginForm.fill(LoginForm("test@test.com", "hogehoge"))
-    
-    // Futureのタイミングが違うパターン
-    // val form = Future { loginForm }
-    // val result = Ok(views.html.board.login(loginForm))
-    // Future(result)
-    
     // ログイン済みかチェック
-    rs.session.get("user_id") match {
-      case Some(x) => {
-        // ログイン済みの場合は掲示板に転送
-        Future(Redirect(routes.LoginController.thread))
-      }
-      case None => {
-        // ログイン画面に転送
-        val message = None
-        Future(loginForm).map(form => Ok(views.html.board.login(form, message)))
-      }
+    // https://www.playframework.com/documentation/2.4.x/ScalaSessionFlash#Reading-a-Session-value
+    rs.session.get("connected").map { email =>
+      // ログイン済みの場合は掲示板に転送
+      Future(Redirect(routes.LoginController.thread))
+    }.getOrElse {
+      // ログイン画面に転送
+      val message = None
+      Future(loginForm).map(form => Ok(views.html.board.login(form, message)))
     }
   }
   
@@ -67,10 +55,12 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
               BadRequest(views.html.board.login(loginForm, message))
             } else {
               // セッショにログイン情報を記録
-              
-              
               val message = Some("ログイン成功：" + users.head.email)
-              Ok(views.html.board.login(loginForm, message))
+              Ok(views.html.board.login(loginForm, message)).withSession(
+                  rs.session + ("connected" -> users.head.email)
+              )
+              // TODO: セッション保存してリダイレクトしたい
+              // Redirect(routes.LoginController.index)
             }
           }
         }
@@ -79,22 +69,24 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   
   // ログアウト処理
   def logout = Action.async { implicit rs =>
-    // session().clear(); //  not found: value session
-    // session().remove("user_id") // not found: value session
-    // rs.session().remove("user_id") // not enough arguments for method apply: (key: String)String in class Session.Unspecified value parameter key.
-    // rs.session.remove("user_id") //  value remove is not a member of play.api.mvc.Session
-    // rs.session.withSession( // value withSession is not a member of play.api.mvc.Session
-    //     session - "user_id"
-    // );
-    Ok().as(HTML).withSession(
-        session - "user_id"
-    );
-    Future(Redirect(routes.LoginController.login))
+    Future(Ok("Logout!").withSession(
+        rs.session - "connected"
+    ));
+    // TODO: セッション削除してリダイレクトしたい
+    // Future(Redirect(routes.LoginController.index))
   }
   
   // スレッド処理
-  def thread = TODO
-  
+  def thread = Action.async { implicit rs => 
+    // ログイン済みかチェック
+    rs.session.get("connected").map { email =>
+      // ログイン済みの場合
+      Future(Ok("ログイン中 : " + email))
+    }.getOrElse {
+      // ログイン画面に転送
+      Future(Redirect(routes.LoginController.index))
+    }
+  }
 }
 
 object LoginController {
