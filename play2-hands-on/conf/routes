@@ -33,6 +33,6 @@ POST    /json/remove/:id            controllers.JsonController.remove(id: Long)
 # 掲示板
 GET     /board/index                controllers.LoginController.index
 POST    /board/login                controllers.LoginController.login
-POST    /board/logout               controllers.LoginController.logout
+GET     /board/logout               controllers.LoginController.logout
 GET     /board/thread               controllers.LoginController.thread
 
