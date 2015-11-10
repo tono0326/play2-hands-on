@@ -54,13 +54,10 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
               val message = Some("ログイン失敗：存在しないユーザーです " + form.email)
               BadRequest(views.html.board.login(loginForm, message))
             } else {
-              // セッショにログイン情報を記録
-              val message = Some("ログイン成功：" + users.head.email)
-              Ok(views.html.board.login(loginForm, message)).withSession(
+              // セッションにログイン情報を記録してリダイレクト
+              Redirect(routes.LoginController.index).withSession(
                   rs.session + ("connected" -> users.head.email)
               )
-              // TODO: セッション保存してリダイレクトしたい
-              // Redirect(routes.LoginController.index)
             }
           }
         }
@@ -69,11 +66,9 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   
   // ログアウト処理
   def logout = Action.async { implicit rs =>
-    Future(Ok("Logout!").withSession(
+    Future(Redirect(routes.LoginController.index).withSession(
         rs.session - "connected"
-    ));
-    // TODO: セッション削除してリダイレクトしたい
-    // Future(Redirect(routes.LoginController.index))
+    ))
   }
   
   // スレッド処理
