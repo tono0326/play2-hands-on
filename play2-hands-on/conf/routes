@@ -34,5 +34,5 @@ POST    /json/remove/:id            controllers.JsonController.remove(id: Long)
 GET     /board/index                controllers.BoardController.index
 POST    /board/login                controllers.BoardController.login
 GET     /board/logout               controllers.BoardController.logout
-GET     /board/thread               controllers.BoardController.thread
+GET     /board/list                 controllers.BoardController.list
 

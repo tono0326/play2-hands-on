@@ -30,7 +30,7 @@ class BoardController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     // https://www.playframework.com/documentation/2.4.x/ScalaSessionFlash#Reading-a-Session-value
     rs.session.get("connected").map { email =>
       // ログイン済みの場合は掲示板に転送
-      Future(Redirect(routes.BoardController.thread))
+      Future(Redirect(routes.BoardController.list))
     }.getOrElse {
       // ログイン画面に転送
       val message = None
@@ -71,8 +71,8 @@ class BoardController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     ))
   }
   
-  // スレッド処理
-  def thread = Action.async { implicit rs => 
+  // 一覧表示
+  def list = Action.async { implicit rs => 
     // ログイン済みかチェック
     rs.session.get("connected").map { email =>
       // ログイン済みの場合
