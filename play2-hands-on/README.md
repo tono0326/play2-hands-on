@@ -16,14 +16,14 @@ This file will be packaged with your application, when using `activator dist`.
 
 ### 動かし方
 
-Play
+#### Play
 
 ```sh
 $ cd ~/scala-play/play2-hands-on/play2-hands-on/
 $ activator run
 ```
 
-DB
+#### DB
 
 ```sh
 $ cd ~/scala-play/play2-hands-on/slick-codegen/h2/
@@ -36,8 +36,10 @@ h2-browser
 
 ```sh
 $ activator
-h2-browser
+$ h2-browser
 ```
+
+※ h2を起動している状態で行うこと
 
 ## 課題をする
 [課題](https://chatwork.atlassian.net/wiki/pages/viewpage.action?pageId=6422657)
