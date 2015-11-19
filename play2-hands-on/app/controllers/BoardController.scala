@@ -18,11 +18,11 @@ import slick.driver.JdbcProfile
 import models.Tables._
 import slick.driver.H2Driver.api._
 
-class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
+class BoardController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
                                 val messagesApi: MessagesApi) extends Controller 
     with HasDatabaseConfigProvider[JdbcProfile] with I18nSupport {
 
-  import LoginController._ // コンパニオンオブジェクトに定義したFormを参照
+  import BoardController._ // コンパニオンオブジェクトに定義したFormを参照
   
   // implicit rsはアクションの処理の中でHTTPリクエストやDBのセッションを暗黙的に使用するために必要になる記述
   def index = Action.async { implicit rs =>
@@ -30,7 +30,7 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
     // https://www.playframework.com/documentation/2.4.x/ScalaSessionFlash#Reading-a-Session-value
     rs.session.get("connected").map { email =>
       // ログイン済みの場合は掲示板に転送
-      Future(Redirect(routes.LoginController.thread))
+      Future(Redirect(routes.BoardController.thread))
     }.getOrElse {
       // ログイン画面に転送
       val message = None
@@ -55,7 +55,7 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
               BadRequest(views.html.board.login(loginForm, message))
             } else {
               // セッションにログイン情報を記録してリダイレクト
-              Redirect(routes.LoginController.index).withSession(
+              Redirect(routes.BoardController.index).withSession(
                   rs.session + ("connected" -> users.head.email)
               )
             }
@@ -66,7 +66,7 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   
   // ログアウト処理
   def logout = Action.async { implicit rs =>
-    Future(Redirect(routes.LoginController.index).withSession(
+    Future(Redirect(routes.BoardController.index).withSession(
         rs.session - "connected"
     ))
   }
@@ -79,12 +79,12 @@ class LoginController @Inject()(val dbConfigProvider: DatabaseConfigProvider,
       Future(Ok("ログイン中 : " + email))
     }.getOrElse {
       // ログイン画面に転送
-      Future(Redirect(routes.LoginController.index))
+      Future(Redirect(routes.BoardController.index))
     }
   }
 }
 
-object LoginController {
+object BoardController {
   case class LoginForm(email: String, password: String)
   
   var loginForm = Form(

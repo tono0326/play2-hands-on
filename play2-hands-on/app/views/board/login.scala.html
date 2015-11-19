@@ -1,5 +1,5 @@
 @* edit Template File *@
-@(loginForm: Form[controllers.LoginController.LoginForm], message: Option[String])(implicit messages: Messages)
+@(loginForm: Form[controllers.BoardController.LoginForm], message: Option[String])(implicit messages: Messages)
 
 @* テンプレートで利用可能なヘルパーをインポート *@
 @* Playが提供する標準ヘルパー（フォームなどを出力する関数）が利用可能 *@
@@ -11,7 +11,7 @@
 <h1>ログイン画面</h1>
 <div class="col-xs-6">
 <div style="color:red">@message.getOrElse("")</div>
-  @form(routes.LoginController.login, 'class -> "container", 'role -> "form") {
+  @form(routes.BoardController.login, 'class -> "container", 'role -> "form") {
   <table class="table table-hover">
     <tbody>
       <tr>
