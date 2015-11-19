@@ -30,3 +30,9 @@ POST    /json/create                controllers.JsonController.create
 POST    /json/update                controllers.JsonController.update
 POST    /json/remove/:id            controllers.JsonController.remove(id: Long)
 
+# 掲示板
+GET     /board/index                controllers.LoginController.index
+POST    /board/login                controllers.LoginController.login
+GET     /board/logout               controllers.LoginController.logout
+GET     /board/thread               controllers.LoginController.thread
+
